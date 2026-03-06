@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LeilãoVision
 
-## Getting Started
+SaaS web para análise e acompanhamento de leilões de imóveis.
 
-First, run the development server:
+## Stack
+
+- Next.js 14 (App Router)
+- React 18 + TypeScript strict
+- Tailwind CSS
+- Supabase (Auth, PostgreSQL, Storage, RLS)
+- Recharts
+- Lucide React
+- @vercel/analytics
+
+## Estrutura
+
+- `src/app` - rotas e APIs (`/api/*`)
+- `src/components` - componentes reutilizáveis
+- `src/lib` - utilitários, Supabase, validações, cálculos financeiros
+- `src/types` - domínio e tipos do banco
+- `supabase/migrations` - migration SQL
+
+## Configuração
+
+1. Copie `.env.example` para `.env.local`.
+2. Preencha as variáveis:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+3. Rode a migration SQL em `supabase/migrations/202603050001_init_leilaovision.sql` no seu projeto Supabase.
+
+## Comandos
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Módulos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Dashboard
+- Imóveis
+- Leilões
+- Análise
+- Documentos
+- Tarefas e Prazos
+- Lances
+- Pós-Leilão
+- Contatos
+- Relatórios
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Segurança
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Middleware protege `/app/*` e redireciona autenticação conforme estado da sessão.
+- RLS habilitado em todas as tabelas com políticas por `user_id = auth.uid()`.
+- Upload de documentos com políticas por pasta de usuário no Storage.
