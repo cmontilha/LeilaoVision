@@ -99,93 +99,120 @@ export default function PostAuctionPage() {
       <Panel>
         <h3 className="mb-4 text-sm font-semibold text-lv-text">Novo fluxo pós-leilão</h3>
         <form className="grid gap-3 md:grid-cols-2 xl:grid-cols-5" onSubmit={createItem}>
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.property_id}
-            onChange={(event) => setForm((prev) => ({ ...prev, property_id: event.target.value }))}
-            required
-          >
-            <option value="">Selecione o imóvel</option>
-            {properties.data.map((property) => (
-              <option key={property.id} value={property.id}>
-                {property.address}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Imóvel
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.property_id}
+              onChange={(event) => setForm((prev) => ({ ...prev, property_id: event.target.value }))}
+              required
+            >
+              <option value="">Selecione o imóvel</option>
+              {properties.data.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.address}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.bid_id}
-            onChange={(event) => setForm((prev) => ({ ...prev, bid_id: event.target.value }))}
-          >
-            <option value="">Vincular lance (opcional)</option>
-            {bids.data.map((bid) => (
-              <option key={bid.id} value={bid.id}>
-                {propertyMap.get(bid.property_id) ?? bid.property_id} - {toCurrency(bid.max_bid)}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Lance vinculado (opcional)
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.bid_id}
+              onChange={(event) => setForm((prev) => ({ ...prev, bid_id: event.target.value }))}
+            >
+              <option value="">Vincular lance (opcional)</option>
+              {bids.data.map((bid) => (
+                <option key={bid.id} value={bid.id}>
+                  {propertyMap.get(bid.property_id) ?? bid.property_id} - {toCurrency(bid.max_bid)}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.status}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, status: event.target.value as PostAuctionStatus }))
-            }
-          >
-            {POST_AUCTION_STATUS.map((status) => (
-              <option key={status} value={status}>
-                {statusLabel[status]}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Status da etapa
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.status}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, status: event.target.value as PostAuctionStatus }))
+              }
+            >
+              {POST_AUCTION_STATUS.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabel[status]}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.payment_amount}
-            onChange={(event) => setForm((prev) => ({ ...prev, payment_amount: event.target.value }))}
-            placeholder="Pagamento"
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Pagamento (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.payment_amount}
+              onChange={(event) => setForm((prev) => ({ ...prev, payment_amount: event.target.value }))}
+              placeholder="Ex.: 250000"
+            />
+          </label>
 
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.auctioneer_commission}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, auctioneer_commission: event.target.value }))
-            }
-            placeholder="Comissão leiloeiro"
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Comissão leiloeiro (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.auctioneer_commission}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, auctioneer_commission: event.target.value }))
+              }
+              placeholder="Ex.: 12500"
+            />
+          </label>
 
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.registry_status}
-            onChange={(event) => setForm((prev) => ({ ...prev, registry_status: event.target.value }))}
-            placeholder="Registro em cartório"
-          />
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.eviction_status}
-            onChange={(event) => setForm((prev) => ({ ...prev, eviction_status: event.target.value }))}
-            placeholder="Desocupação"
-          />
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.renovation_notes}
-            onChange={(event) => setForm((prev) => ({ ...prev, renovation_notes: event.target.value }))}
-            placeholder="Notas da reforma"
-          />
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.resale_value}
-            onChange={(event) => setForm((prev) => ({ ...prev, resale_value: event.target.value }))}
-            placeholder="Valor de revenda"
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Registro em cartório
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.registry_status}
+              onChange={(event) => setForm((prev) => ({ ...prev, registry_status: event.target.value }))}
+              placeholder="Ex.: Em andamento"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Desocupação
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.eviction_status}
+              onChange={(event) => setForm((prev) => ({ ...prev, eviction_status: event.target.value }))}
+              placeholder="Ex.: Notificação enviada"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Notas da reforma
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.renovation_notes}
+              onChange={(event) => setForm((prev) => ({ ...prev, renovation_notes: event.target.value }))}
+              placeholder="Ex.: Troca de pisos e pintura"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Valor de revenda (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.resale_value}
+              onChange={(event) => setForm((prev) => ({ ...prev, resale_value: event.target.value }))}
+              placeholder="Ex.: 420000"
+            />
+          </label>
 
           <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar etapa
@@ -201,9 +228,9 @@ export default function PostAuctionPage() {
               <tr className="text-left text-xs uppercase tracking-[0.12em] text-lv-textMuted">
                 <th className="px-2 py-3">Imóvel</th>
                 <th className="px-2 py-3">Status</th>
-                <th className="px-2 py-3">Pagamento</th>
-                <th className="px-2 py-3">Comissão</th>
-                <th className="px-2 py-3">Revenda</th>
+                <th className="px-2 py-3">Pagamento (R$)</th>
+                <th className="px-2 py-3">Comissão (R$)</th>
+                <th className="px-2 py-3">Revenda (R$)</th>
                 <th className="px-2 py-3">Ações</th>
               </tr>
             </thead>

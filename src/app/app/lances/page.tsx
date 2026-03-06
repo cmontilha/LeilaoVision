@@ -87,64 +87,81 @@ export default function BidsPage() {
       <Panel>
         <h3 className="mb-4 text-sm font-semibold text-lv-text">Novo lance</h3>
         <form className="grid gap-3 md:grid-cols-2 xl:grid-cols-5" onSubmit={createBid}>
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.property_id}
-            onChange={(event) => setForm((prev) => ({ ...prev, property_id: event.target.value }))}
-            required
-          >
-            <option value="">Selecione o imóvel</option>
-            {properties.data.map((property) => (
-              <option key={property.id} value={property.id}>
-                {property.address}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Imóvel
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.property_id}
+              onChange={(event) => setForm((prev) => ({ ...prev, property_id: event.target.value }))}
+              required
+            >
+              <option value="">Selecione o imóvel</option>
+              {properties.data.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.address}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.auction_id}
-            onChange={(event) => setForm((prev) => ({ ...prev, auction_id: event.target.value }))}
-            required
-          >
-            <option value="">Selecione o leilão</option>
-            {auctions.data.map((auction) => (
-              <option key={auction.id} value={auction.id}>
-                {auction.auctioneer}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Leilão
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.auction_id}
+              onChange={(event) => setForm((prev) => ({ ...prev, auction_id: event.target.value }))}
+              required
+            >
+              <option value="">Selecione o leilão</option>
+              {auctions.data.map((auction) => (
+                <option key={auction.id} value={auction.id}>
+                  {auction.auctioneer}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.max_bid}
-            onChange={(event) => setForm((prev) => ({ ...prev, max_bid: event.target.value }))}
-            placeholder="Lance máximo"
-            required
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Lance máximo (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.max_bid}
+              onChange={(event) => setForm((prev) => ({ ...prev, max_bid: event.target.value }))}
+              placeholder="Ex.: 240000"
+              required
+            />
+          </label>
 
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.placed_bid}
-            onChange={(event) => setForm((prev) => ({ ...prev, placed_bid: event.target.value }))}
-            placeholder="Lance realizado"
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Lance realizado (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.placed_bid}
+              onChange={(event) => setForm((prev) => ({ ...prev, placed_bid: event.target.value }))}
+              placeholder="Ex.: 230000"
+            />
+          </label>
 
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.status}
-            onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value as BidStatus }))}
-          >
-            {BID_STATUS.map((status) => (
-              <option key={status} value={status}>
-                {statusLabel[status]}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Status do lance
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.status}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, status: event.target.value as BidStatus }))
+              }
+            >
+              {BID_STATUS.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabel[status]}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar lance
@@ -160,8 +177,8 @@ export default function BidsPage() {
               <tr className="text-left text-xs uppercase tracking-[0.12em] text-lv-textMuted">
                 <th className="px-2 py-3">Imóvel</th>
                 <th className="px-2 py-3">Leilão</th>
-                <th className="px-2 py-3">Lance máximo</th>
-                <th className="px-2 py-3">Lance realizado</th>
+                <th className="px-2 py-3">Lance máximo (R$)</th>
+                <th className="px-2 py-3">Lance realizado (R$)</th>
                 <th className="px-2 py-3">Status</th>
                 <th className="px-2 py-3">Ações</th>
               </tr>

@@ -26,14 +26,22 @@ export function formatDate(value: string | null | undefined): string {
     return "-";
   }
 
+  const dateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T00:00:00(?:\.000)?Z$)/);
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+    return `${day}/${month}/${year}`;
+  }
+
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     return "-";
   }
 
   return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: undefined,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "America/Sao_Paulo",
   }).format(date);
 }
 

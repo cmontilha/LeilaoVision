@@ -21,14 +21,14 @@ export default function AnalysisPage() {
 
   const [form, setForm] = useState({
     property_id: "",
-    market_value: "0",
-    max_bid: "0",
-    estimated_sale_value: "0",
-    renovation_cost: "0",
-    legal_cost: "0",
-    itbi_cost: "0",
-    registration_cost: "0",
-    eviction_cost: "0",
+    market_value: "",
+    max_bid: "",
+    estimated_sale_value: "",
+    renovation_cost: "",
+    legal_cost: "",
+    itbi_cost: "",
+    registration_cost: "",
+    eviction_cost: "",
   });
 
   const calc = useMemo(() => {
@@ -75,85 +75,112 @@ export default function AnalysisPage() {
 
       <Panel>
         <form className="grid gap-3 md:grid-cols-2 xl:grid-cols-5" onSubmit={saveAnalysis}>
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.property_id}
-            onChange={(event) => setForm((prev) => ({ ...prev, property_id: event.target.value }))}
-          >
-            <option value="">Selecionar imóvel (opcional)</option>
-            {properties.data.map((property) => (
-              <option key={property.id} value={property.id}>
-                {property.address}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Imóvel (opcional)
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.property_id}
+              onChange={(event) => setForm((prev) => ({ ...prev, property_id: event.target.value }))}
+            >
+              <option value="">Selecionar imóvel (opcional)</option>
+              {properties.data.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.address}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.market_value}
-            onChange={(event) => setForm((prev) => ({ ...prev, market_value: event.target.value }))}
-            placeholder="Valor de mercado"
-          />
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.max_bid}
-            onChange={(event) => setForm((prev) => ({ ...prev, max_bid: event.target.value }))}
-            placeholder="Lance máximo"
-          />
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.estimated_sale_value}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, estimated_sale_value: event.target.value }))
-            }
-            placeholder="Valor estimado de venda"
-          />
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.renovation_cost}
-            onChange={(event) => setForm((prev) => ({ ...prev, renovation_cost: event.target.value }))}
-            placeholder="Custo de reforma"
-          />
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.legal_cost}
-            onChange={(event) => setForm((prev) => ({ ...prev, legal_cost: event.target.value }))}
-            placeholder="Custo jurídico"
-          />
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.itbi_cost}
-            onChange={(event) => setForm((prev) => ({ ...prev, itbi_cost: event.target.value }))}
-            placeholder="ITBI"
-          />
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.registration_cost}
-            onChange={(event) => setForm((prev) => ({ ...prev, registration_cost: event.target.value }))}
-            placeholder="Registro"
-          />
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.eviction_cost}
-            onChange={(event) => setForm((prev) => ({ ...prev, eviction_cost: event.target.value }))}
-            placeholder="Desocupação"
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Valor de mercado (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.market_value}
+              onChange={(event) => setForm((prev) => ({ ...prev, market_value: event.target.value }))}
+              placeholder="Ex.: 350000"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Lance máximo (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.max_bid}
+              onChange={(event) => setForm((prev) => ({ ...prev, max_bid: event.target.value }))}
+              placeholder="Ex.: 240000"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Valor estimado de venda (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.estimated_sale_value}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, estimated_sale_value: event.target.value }))
+              }
+              placeholder="Ex.: 420000"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Custo de reforma (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.renovation_cost}
+              onChange={(event) => setForm((prev) => ({ ...prev, renovation_cost: event.target.value }))}
+              placeholder="Ex.: 30000"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Custo jurídico (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.legal_cost}
+              onChange={(event) => setForm((prev) => ({ ...prev, legal_cost: event.target.value }))}
+              placeholder="Ex.: 12000"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            ITBI (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.itbi_cost}
+              onChange={(event) => setForm((prev) => ({ ...prev, itbi_cost: event.target.value }))}
+              placeholder="Ex.: 9000"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Registro (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.registration_cost}
+              onChange={(event) => setForm((prev) => ({ ...prev, registration_cost: event.target.value }))}
+              placeholder="Ex.: 4500"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Desocupação (R$)
+            <input
+              type="number"
+              step="0.01"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.eviction_cost}
+              onChange={(event) => setForm((prev) => ({ ...prev, eviction_cost: event.target.value }))}
+              placeholder="Ex.: 8000"
+            />
+          </label>
 
           <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar análise

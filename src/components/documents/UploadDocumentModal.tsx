@@ -120,39 +120,48 @@ export function UploadDocumentModal({
         </div>
 
         <form className="space-y-3" onSubmit={submit}>
-          <select
-            className="w-full rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={propertyId}
-            onChange={(event) => setPropertyId(event.target.value)}
-            required
-          >
-            <option value="">Selecione o imóvel</option>
-            {properties.map((property) => (
-              <option key={property.id} value={property.id}>
-                {property.address}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Imóvel
+            <select
+              className="w-full rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={propertyId}
+              onChange={(event) => setPropertyId(event.target.value)}
+              required
+            >
+              <option value="">Selecione o imóvel</option>
+              {properties.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.address}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <select
-            className="w-full rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={type}
-            onChange={(event) => setType(event.target.value as DocumentType)}
-          >
-            {DOCUMENT_TYPE.map((item) => (
-              <option key={item} value={item}>
-                {documentLabel[item]}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Tipo de documento
+            <select
+              className="w-full rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={type}
+              onChange={(event) => setType(event.target.value as DocumentType)}
+            >
+              {DOCUMENT_TYPE.map((item) => (
+                <option key={item} value={item}>
+                  {documentLabel[item]}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <input
-            type="file"
-            accept="application/pdf,image/*"
-            className="w-full rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            required
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Arquivo (PDF ou imagem)
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              className="w-full rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              required
+            />
+          </label>
 
           {error ? (
             <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">

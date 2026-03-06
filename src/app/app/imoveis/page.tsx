@@ -57,6 +57,7 @@ export default function PropertiesPage() {
     city: "",
     state: "",
     property_type: "Apartamento",
+    source_url: "",
     size_sqm: "",
     occupied: false,
     market_value: "",
@@ -89,6 +90,7 @@ export default function PropertiesPage() {
       city: property.city,
       state: property.state,
       property_type: property.property_type,
+      source_url: property.source_url,
       market_value: property.market_value,
       min_bid: property.min_bid,
       renovation_cost: property.renovation_cost,
@@ -114,6 +116,7 @@ export default function PropertiesPage() {
         city: form.city,
         state: form.state,
         property_type: form.property_type,
+        source_url: form.source_url || null,
         size_sqm: toNullableNumber(form.size_sqm),
         occupied: form.occupied,
         market_value: toNullableNumber(form.market_value),
@@ -129,6 +132,7 @@ export default function PropertiesPage() {
         city: "",
         state: "",
         property_type: "Apartamento",
+        source_url: "",
         size_sqm: "",
         occupied: false,
         market_value: "",
@@ -155,96 +159,139 @@ export default function PropertiesPage() {
       <Panel>
         <h3 className="mb-4 text-sm font-semibold text-lv-text">Novo imóvel</h3>
         <form onSubmit={createProperty} className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <input
-            value={form.address}
-            onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Endereço"
-            required
-          />
-          <input
-            value={form.city}
-            onChange={(event) => setForm((prev) => ({ ...prev, city: event.target.value }))}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Cidade"
-            required
-          />
-          <input
-            value={form.state}
-            onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value.toUpperCase() }))}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Estado (UF)"
-            maxLength={2}
-            required
-          />
-          <input
-            value={form.property_type}
-            onChange={(event) => setForm((prev) => ({ ...prev, property_type: event.target.value }))}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Tipo"
-            required
-          />
-          <input
-            value={form.size_sqm}
-            onChange={(event) => setForm((prev) => ({ ...prev, size_sqm: event.target.value }))}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Metragem"
-            type="number"
-            step="0.01"
-          />
-          <input
-            value={form.market_value}
-            onChange={(event) => setForm((prev) => ({ ...prev, market_value: event.target.value }))}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Valor de mercado"
-            type="number"
-            step="0.01"
-          />
-          <input
-            value={form.min_bid}
-            onChange={(event) => setForm((prev) => ({ ...prev, min_bid: event.target.value }))}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Lance mínimo"
-            type="number"
-            step="0.01"
-          />
-          <input
-            value={form.renovation_cost}
-            onChange={(event) => setForm((prev) => ({ ...prev, renovation_cost: event.target.value }))}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Reforma estimada"
-            type="number"
-            step="0.01"
-          />
-          <select
-            value={form.status}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, status: event.target.value as PropertyStatus }))
-            }
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-          >
-            {PROPERTY_STATUS.map((status) => (
-              <option key={status} value={status}>
-                {statusLabel[status]}
-              </option>
-            ))}
-          </select>
-          <label className="flex items-center gap-2 rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-textMuted">
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Endereço
             <input
-              type="checkbox"
-              checked={form.occupied}
-              onChange={(event) => setForm((prev) => ({ ...prev, occupied: event.target.checked }))}
+              value={form.address}
+              onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: Rua Exemplo, 123"
+              required
             />
-            Ocupado
           </label>
-          <label className="flex items-center gap-2 rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-textMuted">
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Cidade
             <input
-              type="checkbox"
-              checked={form.watchlist}
-              onChange={(event) => setForm((prev) => ({ ...prev, watchlist: event.target.checked }))}
+              value={form.city}
+              onChange={(event) => setForm((prev) => ({ ...prev, city: event.target.value }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: São Paulo"
+              required
             />
-            Acompanhamento
           </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Estado (UF)
+            <input
+              value={form.state}
+              onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value.toUpperCase() }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: SP"
+              maxLength={2}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Tipo de imóvel
+            <input
+              value={form.property_type}
+              onChange={(event) => setForm((prev) => ({ ...prev, property_type: event.target.value }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: Apartamento"
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            URL do imóvel (opcional)
+            <input
+              value={form.source_url}
+              onChange={(event) => setForm((prev) => ({ ...prev, source_url: event.target.value }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="https://..."
+              type="url"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Metragem (m²)
+            <input
+              value={form.size_sqm}
+              onChange={(event) => setForm((prev) => ({ ...prev, size_sqm: event.target.value }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: 72"
+              type="number"
+              step="0.01"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Valor de mercado (R$)
+            <input
+              value={form.market_value}
+              onChange={(event) => setForm((prev) => ({ ...prev, market_value: event.target.value }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: 350000"
+              type="number"
+              step="0.01"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Lance mínimo (R$)
+            <input
+              value={form.min_bid}
+              onChange={(event) => setForm((prev) => ({ ...prev, min_bid: event.target.value }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: 220000"
+              type="number"
+              step="0.01"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Reforma estimada (R$)
+            <input
+              value={form.renovation_cost}
+              onChange={(event) => setForm((prev) => ({ ...prev, renovation_cost: event.target.value }))}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: 30000"
+              type="number"
+              step="0.01"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Status
+            <select
+              value={form.status}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, status: event.target.value as PropertyStatus }))
+              }
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+            >
+              {PROPERTY_STATUS.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabel[status]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Ocupação
+            <label className="flex items-center gap-2 rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-textMuted">
+              <input
+                type="checkbox"
+                checked={form.occupied}
+                onChange={(event) => setForm((prev) => ({ ...prev, occupied: event.target.checked }))}
+              />
+              Imóvel ocupado
+            </label>
+          </div>
+          <div className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Watchlist
+            <label className="flex items-center gap-2 rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-textMuted">
+              <input
+                type="checkbox"
+                checked={form.watchlist}
+                onChange={(event) => setForm((prev) => ({ ...prev, watchlist: event.target.checked }))}
+              />
+              Acompanhar no dashboard
+            </label>
+          </div>
           <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar imóvel
           </button>
@@ -258,38 +305,47 @@ export default function PropertiesPage() {
         />
 
         <div className="mb-4 grid gap-3 md:grid-cols-3">
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Buscar por endereço"
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Buscar por endereço
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: Rua, bairro ou número"
+            />
+          </label>
 
-          <select
-            value={cityFilter}
-            onChange={(event) => setCityFilter(event.target.value)}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-          >
-            <option value="">Todas as cidades</option>
-            {cities.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Filtrar por cidade
+            <select
+              value={cityFilter}
+              onChange={(event) => setCityFilter(event.target.value)}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+            >
+              <option value="">Todas as cidades</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-          >
-            <option value="">Todos os status</option>
-            {PROPERTY_STATUS.map((status) => (
-              <option key={status} value={status}>
-                {statusLabel[status]}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Filtrar por status
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+            >
+              <option value="">Todos os status</option>
+              {PROPERTY_STATUS.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabel[status]}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
 
         {feedback ? (
@@ -311,9 +367,10 @@ export default function PropertiesPage() {
                 <th className="px-2 py-3">Endereço</th>
                 <th className="px-2 py-3">Cidade/UF</th>
                 <th className="px-2 py-3">Status</th>
-                <th className="px-2 py-3">Mercado</th>
-                <th className="px-2 py-3">Lance mín.</th>
+                <th className="px-2 py-3">Mercado (R$)</th>
+                <th className="px-2 py-3">Lance mín. (R$)</th>
                 <th className="px-2 py-3">Ocupado</th>
+                <th className="px-2 py-3">URL</th>
                 <th className="px-2 py-3">Ações</th>
               </tr>
             </thead>
@@ -389,6 +446,30 @@ export default function PropertiesPage() {
                     <td className="px-2 py-3">{toCurrency(property.market_value)}</td>
                     <td className="px-2 py-3">{toCurrency(property.min_bid)}</td>
                     <td className="px-2 py-3">{property.occupied ? "Sim" : "Não"}</td>
+                    <td className="px-2 py-3">
+                      {editing ? (
+                        <input
+                          value={String(editingDraft.source_url ?? "")}
+                          onChange={(event) =>
+                            setEditingDraft((prev) => ({ ...prev, source_url: event.target.value }))
+                          }
+                          className="w-48 rounded-lg border border-lv-border bg-lv-panelMuted px-2 py-1 text-sm"
+                          placeholder="https://..."
+                          type="url"
+                        />
+                      ) : property.source_url ? (
+                        <a
+                          href={property.source_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[#FFC107] hover:text-[#FFB300] hover:underline"
+                        >
+                          Abrir
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                     <td className="px-2 py-3">
                       <div className="flex items-center gap-2">
                         {editing ? (

@@ -15,6 +15,7 @@ const contactLabel: Record<ContactType, string> = {
   engenheiro: "Engenheiro",
   despachante: "Despachante",
   cartorio: "Cartório",
+  outros: "Outros",
 };
 
 export default function ContactsPage() {
@@ -73,61 +74,84 @@ export default function ContactsPage() {
       <Panel>
         <h3 className="mb-4 text-sm font-semibold text-lv-text">Novo contato</h3>
         <form className="grid gap-3 md:grid-cols-2 xl:grid-cols-5" onSubmit={createContact}>
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.type}
-            onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value as ContactType }))}
-          >
-            {CONTACT_TYPE.map((type) => (
-              <option key={type} value={type}>
-                {contactLabel[type]}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Tipo de contato
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.type}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, type: event.target.value as ContactType }))
+              }
+            >
+              {CONTACT_TYPE.map((type) => (
+                <option key={type} value={type}>
+                  {contactLabel[type]}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Nome"
-            value={form.name}
-            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-            required
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Nome
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: Ana Souza"
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              required
+            />
+          </label>
 
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Cargo"
-            value={form.role}
-            onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value }))}
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Cargo (opcional)
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: Advogada especialista"
+              value={form.role}
+              onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value }))}
+            />
+          </label>
 
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Empresa"
-            value={form.company}
-            onChange={(event) => setForm((prev) => ({ ...prev, company: event.target.value }))}
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Empresa (opcional)
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: Escritório XYZ"
+              value={form.company}
+              onChange={(event) => setForm((prev) => ({ ...prev, company: event.target.value }))}
+            />
+          </label>
 
-          <input
-            type="email"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="E-mail"
-            value={form.email}
-            onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            E-mail (opcional)
+            <input
+              type="email"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="nome@empresa.com"
+              value={form.email}
+              onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+            />
+          </label>
 
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Telefone"
-            value={form.phone}
-            onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Telefone (opcional)
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="(11) 99999-9999"
+              value={form.phone}
+              onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
+            />
+          </label>
 
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm md:col-span-2 xl:col-span-3"
-            placeholder="Observações"
-            value={form.notes}
-            onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted md:col-span-2 xl:col-span-3">
+            Observações (opcional)
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: Atende região central"
+              value={form.notes}
+              onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
+            />
+          </label>
 
           <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar contato

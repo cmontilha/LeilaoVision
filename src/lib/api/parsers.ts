@@ -50,6 +50,7 @@ export function parsePropertyCreate(payload: Record<string, unknown>) {
     city: ensureRequiredString(payload.city, "city"),
     state: ensureRequiredString(payload.state, "state", 2).toUpperCase(),
     property_type: ensureRequiredString(payload.property_type, "property_type"),
+    source_url: ensureOptionalUrl(payload.source_url, "source_url"),
     size_sqm: ensureOptionalNumber(payload.size_sqm, "size_sqm"),
     occupied: hasKey(payload, "occupied") ? ensureBoolean(payload.occupied, "occupied") : false,
     market_value: ensureOptionalNumber(payload.market_value, "market_value"),
@@ -71,6 +72,7 @@ export function parsePropertyUpdate(payload: Record<string, unknown>) {
   if (hasKey(payload, "state")) next.state = ensureRequiredString(payload.state, "state", 2).toUpperCase();
   if (hasKey(payload, "property_type"))
     next.property_type = ensureRequiredString(payload.property_type, "property_type");
+  if (hasKey(payload, "source_url")) next.source_url = ensureOptionalUrl(payload.source_url, "source_url");
   if (hasKey(payload, "size_sqm")) next.size_sqm = ensureOptionalNumber(payload.size_sqm, "size_sqm");
   if (hasKey(payload, "occupied")) next.occupied = ensureBoolean(payload.occupied, "occupied");
   if (hasKey(payload, "market_value"))

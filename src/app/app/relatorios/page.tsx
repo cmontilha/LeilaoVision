@@ -15,7 +15,13 @@ function average(values: number[]): number {
 }
 
 function toIsoOrNull(value: string): string | null {
-  return value ? new Date(value).toISOString() : null;
+  if (!value) return null;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return `${value}T12:00:00.000Z`;
+  }
+
+  return new Date(value).toISOString();
 }
 
 function buildCsv(metrics: { label: string; value: string }[], reports: Report[]): string {
@@ -186,25 +192,36 @@ export default function ReportsPage() {
       <Panel>
         <h3 className="mb-4 text-sm font-semibold text-lv-text">Salvar novo relatório</h3>
         <form className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" onSubmit={createReport}>
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.name}
-            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-            placeholder="Nome do relatório"
-            required
-          />
-          <input
-            type="date"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.period_start}
-            onChange={(event) => setForm((prev) => ({ ...prev, period_start: event.target.value }))}
-          />
-          <input
-            type="date"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.period_end}
-            onChange={(event) => setForm((prev) => ({ ...prev, period_end: event.target.value }))}
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Nome do relatório
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              placeholder="Ex.: Relatório mensal de março"
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Início do período (opcional)
+            <input
+              type="date"
+              lang="pt-BR"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.period_start}
+              onChange={(event) => setForm((prev) => ({ ...prev, period_start: event.target.value }))}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Fim do período (opcional)
+            <input
+              type="date"
+              lang="pt-BR"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.period_end}
+              onChange={(event) => setForm((prev) => ({ ...prev, period_end: event.target.value }))}
+            />
+          </label>
           <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar relatório
           </button>

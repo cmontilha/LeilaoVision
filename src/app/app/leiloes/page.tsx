@@ -16,8 +16,20 @@ const auctionTypeLabel: Record<AuctionType, string> = {
   bank: "Banco",
 };
 
+function toneForAuctionType(type: AuctionType): "default" | "success" | "warning" | "danger" {
+  if (type === "judicial") return "danger";
+  if (type === "extrajudicial") return "warning";
+  return "success";
+}
+
 function toIsoOrNull(value: string): string | null {
-  return value ? new Date(value).toISOString() : null;
+  if (!value) return null;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return `${value}T12:00:00.000Z`;
+  }
+
+  return new Date(value).toISOString();
 }
 
 export default function AuctionsPage() {
@@ -31,7 +43,7 @@ export default function AuctionsPage() {
     auction_type: "judicial" as AuctionType,
     first_auction_at: "",
     second_auction_at: "",
-    commission_percent: "5",
+    commission_percent: "",
     payment_terms: "",
     notice_url: "",
   });
@@ -70,7 +82,7 @@ export default function AuctionsPage() {
       auction_type: "judicial",
       first_auction_at: "",
       second_auction_at: "",
-      commission_percent: "5",
+      commission_percent: "",
       payment_terms: "",
       notice_url: "",
     });
@@ -85,67 +97,99 @@ export default function AuctionsPage() {
 
       <Panel>
         <h3 className="mb-4 text-sm font-semibold text-lv-text">Novo evento de leilão</h3>
+        <p className="mb-4 text-xs text-lv-textMuted">
+          Preencha a data da 1ª praça obrigatoriamente no formato dia/mês/ano. A data da 2ª praça é opcional.
+          Comissão é o percentual do leiloeiro (ex.: 5.00).
+        </p>
         <form className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" onSubmit={createAuction}>
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Leiloeiro"
-            value={form.auctioneer}
-            onChange={(event) => setForm((prev) => ({ ...prev, auctioneer: event.target.value }))}
-            required
-          />
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Plataforma"
-            value={form.platform}
-            onChange={(event) => setForm((prev) => ({ ...prev, platform: event.target.value }))}
-          />
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.auction_type}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, auction_type: event.target.value as AuctionType }))
-            }
-          >
-            {AUCTION_TYPE.map((type) => (
-              <option key={type} value={type}>
-                {auctionTypeLabel[type]}
-              </option>
-            ))}
-          </select>
-          <input
-            type="number"
-            step="0.01"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Comissão (%)"
-            value={form.commission_percent}
-            onChange={(event) => setForm((prev) => ({ ...prev, commission_percent: event.target.value }))}
-            required
-          />
-          <input
-            type="datetime-local"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.first_auction_at}
-            onChange={(event) => setForm((prev) => ({ ...prev, first_auction_at: event.target.value }))}
-            required
-          />
-          <input
-            type="datetime-local"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.second_auction_at}
-            onChange={(event) => setForm((prev) => ({ ...prev, second_auction_at: event.target.value }))}
-          />
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Condições de pagamento"
-            value={form.payment_terms}
-            onChange={(event) => setForm((prev) => ({ ...prev, payment_terms: event.target.value }))}
-          />
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            placeholder="Link do edital"
-            value={form.notice_url}
-            onChange={(event) => setForm((prev) => ({ ...prev, notice_url: event.target.value }))}
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Leiloeiro
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Nome do leiloeiro"
+              value={form.auctioneer}
+              onChange={(event) => setForm((prev) => ({ ...prev, auctioneer: event.target.value }))}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Plataforma
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Site ou plataforma"
+              value={form.platform}
+              onChange={(event) => setForm((prev) => ({ ...prev, platform: event.target.value }))}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Tipo de leilão
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.auction_type}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, auction_type: event.target.value as AuctionType }))
+              }
+            >
+              {AUCTION_TYPE.map((type) => (
+                <option key={type} value={type}>
+                  {auctionTypeLabel[type]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Comissão do leiloeiro (%)
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: 5.00"
+              value={form.commission_percent}
+              onChange={(event) => setForm((prev) => ({ ...prev, commission_percent: event.target.value }))}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Data da 1ª praça
+            <input
+              type="date"
+              lang="pt-BR"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.first_auction_at}
+              onChange={(event) => setForm((prev) => ({ ...prev, first_auction_at: event.target.value }))}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Data da 2ª praça (opcional)
+            <input
+              type="date"
+              lang="pt-BR"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.second_auction_at}
+              onChange={(event) => setForm((prev) => ({ ...prev, second_auction_at: event.target.value }))}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Condições de pagamento
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="Ex.: à vista, parcelado, sinal"
+              value={form.payment_terms}
+              onChange={(event) => setForm((prev) => ({ ...prev, payment_terms: event.target.value }))}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Link do edital
+            <input
+              type="url"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              placeholder="https://..."
+              value={form.notice_url}
+              onChange={(event) => setForm((prev) => ({ ...prev, notice_url: event.target.value }))}
+            />
+          </label>
           <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar leilão
           </button>
@@ -183,7 +227,10 @@ export default function AuctionsPage() {
                 <tr key={auction.id}>
                   <td className="px-2 py-3 text-lv-text">{auction.auctioneer}</td>
                   <td className="px-2 py-3">
-                    <StatusBadge label={auctionTypeLabel[auction.auction_type]} />
+                    <StatusBadge
+                      label={auctionTypeLabel[auction.auction_type]}
+                      tone={toneForAuctionType(auction.auction_type)}
+                    />
                   </td>
                   <td className="px-2 py-3 text-lv-textMuted">{formatDate(auction.first_auction_at)}</td>
                   <td className="px-2 py-3 text-lv-textMuted">{formatDate(auction.second_auction_at)}</td>

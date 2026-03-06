@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 import { SIDEBAR_STORAGE_KEY } from "@/lib/constants";
-import { APP_NAV_ITEMS } from "@/lib/nav";
+import { APP_NAV_GROUPS, APP_NAV_ITEMS, type AppNavGroupKey } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -16,8 +16,21 @@ interface SidebarProps {
   onToggleCollapse: () => void;
 }
 
+const groupTitleClass: Record<AppNavGroupKey, string> = {
+  painel: "text-lv-textMuted",
+  oportunidades: "text-amber-300",
+  financeiro: "text-sky-300",
+  operacao: "text-emerald-300",
+  rede: "text-rose-300",
+  relatorios: "text-orange-300",
+};
+
 export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
+  const groupedItems = APP_NAV_GROUPS.map((group) => ({
+    ...group,
+    items: APP_NAV_ITEMS.filter((item) => item.group === group.key),
+  })).filter((group) => group.items.length > 0);
 
   return (
     <>
@@ -66,36 +79,52 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onToggleCollapse
             </button>
           </div>
 
-          <nav className="space-y-1 overflow-y-auto pr-1">
-            {APP_NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const active = pathname === item.href;
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onCloseMobile}
-                  className={cn(
-                    "group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition",
-                    active
-                      ? "border-[#FFC107]/45 bg-[#FFC107]/14 text-white"
-                      : "border-transparent text-white/80 hover:border-white/15 hover:bg-white/5 hover:text-white",
-                  )}
-                >
-                  <Icon
-                    size={18}
+          <nav className="overflow-y-auto pr-1">
+            {groupedItems.map((group, index) => (
+              <div key={group.key} className={cn(index === 0 ? "space-y-1" : "mt-4 space-y-1")}>
+                {group.label ? (
+                  <p
                     className={cn(
-                      "shrink-0 transition",
-                      active ? "text-[#FFC107]" : "text-white/85 group-hover:text-[#FFC107]",
+                      "px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em]",
+                      groupTitleClass[group.key],
+                      collapsed ? "hidden" : "block",
                     )}
-                  />
-                  <span className={cn("whitespace-nowrap transition", collapsed ? "hidden" : "block")}>
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
+                  >
+                    {group.label}
+                  </p>
+                ) : null}
+
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = pathname === item.href;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onCloseMobile}
+                      className={cn(
+                        "group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition",
+                        active
+                          ? "border-[#FFC107]/45 bg-[#FFC107]/14 text-white"
+                          : "border-transparent text-white/80 hover:border-white/15 hover:bg-white/5 hover:text-white",
+                      )}
+                    >
+                      <Icon
+                        size={18}
+                        className={cn(
+                          "shrink-0 transition",
+                          active ? "text-[#FFC107]" : "text-white/85 group-hover:text-[#FFC107]",
+                        )}
+                      />
+                      <span className={cn("whitespace-nowrap transition", collapsed ? "hidden" : "block")}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
 
           <div className="mt-auto hidden pt-4 md:block">

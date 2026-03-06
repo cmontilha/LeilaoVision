@@ -31,6 +31,10 @@ const statusLabel: Record<TaskStatus, string> = {
 };
 
 function toIso(value: string): string {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return `${value}T12:00:00.000Z`;
+  }
+
   return new Date(value).toISOString();
 }
 
@@ -117,48 +121,61 @@ export default function TasksPage() {
       <Panel>
         <h3 className="mb-4 text-sm font-semibold text-lv-text">Nova tarefa</h3>
         <form className="grid gap-3 md:grid-cols-2 xl:grid-cols-5" onSubmit={createTask}>
-          <input
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.name}
-            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-            placeholder="Nome da tarefa"
-            required
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Nome da tarefa
+            <input
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              placeholder="Ex.: Verificar matrícula do imóvel"
+              required
+            />
+          </label>
 
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.property_id}
-            onChange={(event) => setForm((prev) => ({ ...prev, property_id: event.target.value }))}
-          >
-            <option value="">Sem imóvel associado</option>
-            {properties.data.map((property) => (
-              <option key={property.id} value={property.id}>
-                {property.address}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Imóvel associado (opcional)
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.property_id}
+              onChange={(event) => setForm((prev) => ({ ...prev, property_id: event.target.value }))}
+            >
+              <option value="">Sem imóvel associado</option>
+              {properties.data.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.address}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <input
-            type="datetime-local"
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.due_date}
-            onChange={(event) => setForm((prev) => ({ ...prev, due_date: event.target.value }))}
-            required
-          />
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Data limite
+            <input
+              type="date"
+              lang="pt-BR"
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.due_date}
+              onChange={(event) => setForm((prev) => ({ ...prev, due_date: event.target.value }))}
+              required
+            />
+          </label>
 
-          <select
-            className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm"
-            value={form.priority}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, priority: event.target.value as TaskPriority }))
-            }
-          >
-            {TASK_PRIORITY.map((priority) => (
-              <option key={priority} value={priority}>
-                Prioridade {priorityLabel[priority]}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-xs text-lv-textMuted">
+            Prioridade
+            <select
+              className="rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
+              value={form.priority}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, priority: event.target.value as TaskPriority }))
+              }
+            >
+              {TASK_PRIORITY.map((priority) => (
+                <option key={priority} value={priority}>
+                  Prioridade {priorityLabel[priority]}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar tarefa

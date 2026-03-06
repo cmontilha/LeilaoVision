@@ -26,7 +26,14 @@ export const POST_AUCTION_STATUS = [
   "vendido",
 ] as const;
 
-export const CONTACT_TYPE = ["advogado", "corretor", "engenheiro", "despachante", "cartorio"] as const;
+export const CONTACT_TYPE = [
+  "advogado",
+  "corretor",
+  "engenheiro",
+  "despachante",
+  "cartorio",
+  "outros",
+] as const;
 
 export type PropertyStatus = (typeof PROPERTY_STATUS)[number];
 export type AuctionType = (typeof AUCTION_TYPE)[number];
@@ -50,6 +57,7 @@ export interface Property {
   city: string;
   state: string;
   property_type: string;
+  source_url: string | null;
   size_sqm: number | null;
   occupied: boolean;
   market_value: number | null;
