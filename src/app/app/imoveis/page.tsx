@@ -245,7 +245,7 @@ export default function PropertiesPage() {
             />
             Acompanhamento
           </label>
-          <button className="rounded-xl border border-lv-neon/40 bg-lv-neon/10 px-4 py-2 text-sm font-medium text-lv-neon">
+          <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar imóvel
           </button>
         </form>
@@ -395,7 +395,7 @@ export default function PropertiesPage() {
                           <>
                             <button
                               type="button"
-                              className="rounded-lg border border-lv-neon/40 bg-lv-neon/10 p-2 text-lv-neon"
+                              className="rounded-lg border border-[#FFC107] bg-[#FFC107] p-2 text-[#000000]"
                               onClick={() => void saveEdit(property.id)}
                             >
                               <Save size={14} />

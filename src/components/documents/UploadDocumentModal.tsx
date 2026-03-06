@@ -162,7 +162,7 @@ export function UploadDocumentModal({
 
           <button
             disabled={loading}
-            className="w-full rounded-xl border border-lv-neon/40 bg-lv-neon/10 px-4 py-2 text-sm font-medium text-lv-neon disabled:opacity-60"
+            className="w-full rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000] disabled:opacity-60"
           >
             {loading ? "Enviando..." : "Enviar documento"}
           </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -33,34 +34,39 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onToggleCollapse
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen border-r border-lv-border bg-lv-panel/95 px-3 py-4 backdrop-blur transition-all duration-200",
+          "fixed left-0 top-0 z-40 h-screen border-r border-white/10 bg-[#141416] px-3 py-4 backdrop-blur transition-all duration-200",
           collapsed ? "w-[88px]" : "w-[280px]",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
           "md:translate-x-0",
         )}
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between gap-2 px-2 pb-4">
-            <div
-              className={cn(
-                "overflow-hidden transition",
-                collapsed ? "w-0 opacity-0" : "w-auto opacity-100",
-              )}
-            >
-              <p className="text-lg font-semibold tracking-tight">LeilãoVision</p>
-              <p className="text-xs text-lv-textMuted">CRM de Leilões</p>
+          <div className="flex items-center justify-between gap-2 px-2 pb-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+                <Image src="/brand/lv-logo.png" alt="Logo LeilãoVision" fill className="object-cover" sizes="40px" />
+              </div>
+              <div
+                className={cn(
+                  "min-w-0 overflow-hidden transition",
+                  collapsed ? "w-0 opacity-0" : "w-auto opacity-100",
+                )}
+              >
+                <p className="truncate text-lg font-semibold tracking-tight text-white">LeilãoVision</p>
+                <p className="truncate text-xs text-lv-textMuted">Plataforma de Leilões</p>
+              </div>
             </div>
 
             <button
               type="button"
               onClick={onCloseMobile}
-              className="rounded-lg border border-lv-border bg-lv-panelMuted p-2 text-lv-textMuted transition hover:text-lv-neon md:hidden"
+              className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/80 transition hover:bg-white/10 hover:text-white md:hidden"
             >
               <X size={16} />
             </button>
           </div>
 
-          <nav className="space-y-1 overflow-y-auto">
+          <nav className="space-y-1 overflow-y-auto pr-1">
             {APP_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
@@ -73,11 +79,17 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onToggleCollapse
                   className={cn(
                     "group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition",
                     active
-                      ? "border-lv-neon/40 bg-lv-neon/15 text-lv-neon"
-                      : "border-transparent text-lv-textMuted hover:border-lv-border hover:bg-lv-panelMuted hover:text-lv-text",
+                      ? "border-[#FFC107]/45 bg-[#FFC107]/14 text-white"
+                      : "border-transparent text-white/80 hover:border-white/15 hover:bg-white/5 hover:text-white",
                   )}
                 >
-                  <Icon size={18} className="shrink-0" />
+                  <Icon
+                    size={18}
+                    className={cn(
+                      "shrink-0 transition",
+                      active ? "text-[#FFC107]" : "text-white/85 group-hover:text-[#FFC107]",
+                    )}
+                  />
                   <span className={cn("whitespace-nowrap transition", collapsed ? "hidden" : "block")}>
                     {item.label}
                   </span>
@@ -91,15 +103,13 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onToggleCollapse
               type="button"
               onClick={onToggleCollapse}
               className={cn(
-                "flex w-full items-center justify-center gap-2 rounded-xl border border-lv-border bg-lv-panelMuted p-2 text-sm text-lv-textMuted transition hover:border-lv-neon/50 hover:text-lv-neon",
+                "flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 p-2 text-sm text-white/80 transition hover:border-[#FFC107]/45 hover:bg-[#FFC107] hover:text-black",
                 collapsed ? "px-2" : "px-3",
               )}
               aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
             >
               {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-              <span className={cn("whitespace-nowrap", collapsed ? "hidden" : "inline")}>
-                Recolher menu
-              </span>
+              <span className={cn("whitespace-nowrap", collapsed ? "hidden" : "inline")}>Recolher menu</span>
             </button>
           </div>
         </div>

@@ -155,7 +155,7 @@ export default function AnalysisPage() {
             placeholder="Desocupação"
           />
 
-          <button className="rounded-xl border border-lv-neon/40 bg-lv-neon/10 px-4 py-2 text-sm font-medium text-lv-neon">
+          <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar análise
           </button>
         </form>
@@ -185,18 +185,18 @@ export default function AnalysisPage() {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(141,165,200,0.2)" />
-              <XAxis dataKey="label" stroke="#8da5c8" fontSize={11} />
-              <YAxis stroke="#8da5c8" fontSize={11} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(230,230,230,0.12)" />
+              <XAxis dataKey="label" stroke="#C7C7C2" fontSize={11} />
+              <YAxis stroke="#C7C7C2" fontSize={11} />
               <Tooltip
                 contentStyle={{
-                  background: "#0b1220",
-                  border: "1px solid #1c2f4f",
+                  background: "#141416",
+                  border: "1px solid rgba(230,230,230,0.2)",
                   borderRadius: 12,
                 }}
                 formatter={(value: number) => toCurrency(value)}
               />
-              <Bar dataKey="value" fill="#37b7ff" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="value" fill="#FFC107" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

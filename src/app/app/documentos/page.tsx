@@ -51,7 +51,7 @@ export default function DocumentsPage() {
         action={
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-xl border border-lv-neon/40 bg-lv-neon/10 px-4 py-2 text-sm font-medium text-lv-neon"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]"
             onClick={() => setOpenModal(true)}
           >
             <Plus size={16} />

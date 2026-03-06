@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="min-h-screen bg-lv-bg text-lv-text antialiased">
-        <div className="fixed inset-0 -z-10 lv-grid-bg opacity-30" />
+        <div className="fixed inset-0 -z-10 lv-grid-bg" />
         {children}
         <Analytics />
       </body>

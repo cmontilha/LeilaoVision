@@ -6,22 +6,24 @@ const config: Config = {
     extend: {
       colors: {
         lv: {
-          bg: "#030712",
-          panel: "#0b1220",
-          panelMuted: "#111d34",
-          border: "#1c2f4f",
-          neon: "#37b7ff",
-          neonSoft: "#7fd7ff",
-          text: "#e6f1ff",
-          textMuted: "#8da5c8",
+          bg: "#0B0B0C",
+          panel: "#141416",
+          panelMuted: "#1D1D21",
+          border: "rgba(230, 230, 230, 0.16)",
+          neon: "#FFC107",
+          neonSoft: "#FFB300",
+          text: "#FFFFFF",
+          textMuted: "#C7C7C2",
+          textDark: "#111111",
+          neutralSoft: "#F5F5F2",
         },
       },
       boxShadow: {
-        neon: "0 0 0 1px rgba(55,183,255,.25), 0 15px 45px rgba(30,95,180,.25)",
+        neon: "0 10px 30px rgba(0,0,0,0.25)",
       },
       backgroundImage: {
-        "lv-grid":
-          "linear-gradient(rgba(127, 215, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(127, 215, 255, 0.08) 1px, transparent 1px)",
+        "lv-surface":
+          "radial-gradient(circle at 20% 0%, rgba(255, 193, 7, 0.14), transparent 30%), linear-gradient(180deg, #141416 0%, #0B0B0C 100%)",
       },
     },
   },

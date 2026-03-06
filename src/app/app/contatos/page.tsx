@@ -129,7 +129,7 @@ export default function ContactsPage() {
             onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
           />
 
-          <button className="rounded-xl border border-lv-neon/40 bg-lv-neon/10 px-4 py-2 text-sm font-medium text-lv-neon">
+          <button className="rounded-xl border border-[#FFC107] bg-[#FFC107] px-4 py-2 text-sm font-medium text-[#000000]">
             Salvar contato
           </button>
         </form>

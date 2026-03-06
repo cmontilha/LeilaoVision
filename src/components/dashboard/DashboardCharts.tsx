@@ -27,6 +27,15 @@ export function DashboardCharts({
   successRate,
   averageRoi,
 }: DashboardChartsProps) {
+  const gridColor = "rgba(230,230,230,0.12)";
+  const axisColor = "#C7C7C2";
+  const tooltipStyle = {
+    background: "#141416",
+    border: "1px solid rgba(230,230,230,0.2)",
+    borderRadius: 12,
+    color: "#FFFFFF",
+  };
+
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       <Panel>
@@ -34,17 +43,11 @@ export function DashboardCharts({
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={auctionsByMonth}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(141,165,200,0.15)" />
-              <XAxis dataKey="label" stroke="#8da5c8" fontSize={11} />
-              <YAxis stroke="#8da5c8" fontSize={11} />
-              <Tooltip
-                contentStyle={{
-                  background: "#0b1220",
-                  border: "1px solid #1c2f4f",
-                  borderRadius: 12,
-                }}
-              />
-              <Area type="monotone" dataKey="value" stroke="#37b7ff" fill="#37b7ff44" />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="label" stroke={axisColor} fontSize={11} />
+              <YAxis stroke={axisColor} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Area type="monotone" dataKey="value" stroke="#FFC107" fill="rgba(255,193,7,0.32)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -55,17 +58,11 @@ export function DashboardCharts({
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={successRate}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(141,165,200,0.15)" />
-              <XAxis dataKey="label" stroke="#8da5c8" fontSize={11} />
-              <YAxis stroke="#8da5c8" fontSize={11} />
-              <Tooltip
-                contentStyle={{
-                  background: "#0b1220",
-                  border: "1px solid #1c2f4f",
-                  borderRadius: 12,
-                }}
-              />
-              <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} dot={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="label" stroke={axisColor} fontSize={11} />
+              <YAxis stroke={axisColor} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Line type="monotone" dataKey="value" stroke="#FFB300" strokeWidth={2.2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -76,17 +73,11 @@ export function DashboardCharts({
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={averageRoi}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(141,165,200,0.15)" />
-              <XAxis dataKey="label" stroke="#8da5c8" fontSize={11} />
-              <YAxis stroke="#8da5c8" fontSize={11} />
-              <Tooltip
-                contentStyle={{
-                  background: "#0b1220",
-                  border: "1px solid #1c2f4f",
-                  borderRadius: 12,
-                }}
-              />
-              <Line type="monotone" dataKey="value" stroke="#7fd7ff" strokeWidth={2} dot={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="label" stroke={axisColor} fontSize={11} />
+              <YAxis stroke={axisColor} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Line type="monotone" dataKey="value" stroke="#F5F5F2" strokeWidth={2.2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

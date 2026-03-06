@@ -6,9 +6,9 @@ interface SectionTitleProps {
 
 export function SectionTitle({ title, description, action }: SectionTitleProps) {
   return (
-    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h2 className="text-lg font-semibold text-lv-text">{title}</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-lv-text">{title}</h2>
         {description ? <p className="mt-1 text-sm text-lv-textMuted">{description}</p> : null}
       </div>
       {action}
