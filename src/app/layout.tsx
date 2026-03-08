@@ -7,9 +7,12 @@ export const metadata: Metadata = {
   title: "LeilãoVision",
   description: "SaaS para análise e acompanhamento de leilões imobiliários.",
   icons: {
-    icon: "/brand/lv-logo.png",
-    shortcut: "/brand/lv-logo.png",
-    apple: "/brand/lv-logo.png",
+    icon: [
+      { url: "/favicon.ico?v=20260308" },
+      { url: "/brand/lv-logo.png?v=20260308", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico?v=20260308",
+    apple: "/brand/lv-logo.png?v=20260308",
   },
 };
 
