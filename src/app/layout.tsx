@@ -6,6 +6,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "LeilãoVision",
   description: "SaaS para análise e acompanhamento de leilões imobiliários.",
+  icons: {
+    icon: "/brand/lv-logo.png",
+    shortcut: "/brand/lv-logo.png",
+    apple: "/brand/lv-logo.png",
+  },
 };
 
 export default function RootLayout({
