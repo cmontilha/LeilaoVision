@@ -48,6 +48,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const isProtectedRoute = pathname.startsWith("/app");
+  const isAdminRoute = pathname.startsWith("/app/admin");
   const isAuthRoute = pathname === "/login" || pathname === "/signup";
 
   if (isProtectedRoute && !user) {
@@ -56,6 +57,20 @@ export async function middleware(request: NextRequest) {
 
   if (isAuthRoute && user) {
     return withSecurityHeaders(NextResponse.redirect(new URL("/app/dashboard", request.url)), request);
+  }
+
+  if (isAdminRoute && user) {
+    const { data: profile, error } = await supabase
+      .from("user_profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const role = (profile as { role?: string } | null)?.role;
+
+    if (error || role !== "admin") {
+      return withSecurityHeaders(NextResponse.redirect(new URL("/app/dashboard", request.url)), request);
+    }
   }
 
   return withSecurityHeaders(getResponse(), request);

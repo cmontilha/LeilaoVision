@@ -35,6 +35,8 @@ export const CONTACT_TYPE = [
   "outros",
 ] as const;
 
+export const APP_ROLE = ["user", "admin"] as const;
+
 export type PropertyStatus = (typeof PROPERTY_STATUS)[number];
 export type AuctionType = (typeof AUCTION_TYPE)[number];
 export type BidStatus = (typeof BID_STATUS)[number];
@@ -43,6 +45,7 @@ export type TaskStatus = (typeof TASK_STATUS)[number];
 export type DocumentType = (typeof DOCUMENT_TYPE)[number];
 export type PostAuctionStatus = (typeof POST_AUCTION_STATUS)[number];
 export type ContactType = (typeof CONTACT_TYPE)[number];
+export type AppRole = (typeof APP_ROLE)[number];
 
 export type UUID = string;
 export type ISODateString = string;
@@ -182,6 +185,13 @@ export interface PostAuction {
   resale_value: number | null;
 }
 
+export interface UserProfile {
+  user_id: UUID;
+  role: AppRole;
+  created_at: ISODateString;
+  updated_at: ISODateString;
+}
+
 export type NewProperty = Omit<Property, "id" | "created_at" | "updated_at" | "user_id">;
 export type NewAuction = Omit<Auction, "id" | "created_at" | "updated_at" | "user_id">;
 export type NewPropertyAnalysis = Omit<PropertyAnalysis, "id" | "created_at" | "updated_at" | "user_id">;
@@ -191,6 +201,7 @@ export type NewTask = Omit<Task, "id" | "created_at" | "updated_at" | "user_id">
 export type NewContact = Omit<Contact, "id" | "created_at" | "updated_at" | "user_id">;
 export type NewReport = Omit<Report, "id" | "created_at" | "updated_at" | "user_id">;
 export type NewPostAuction = Omit<PostAuction, "id" | "created_at" | "updated_at" | "user_id">;
+export type NewUserProfile = Omit<UserProfile, "created_at" | "updated_at">;
 
 export type UpdateProperty = Partial<NewProperty>;
 export type UpdateAuction = Partial<NewAuction>;
@@ -201,6 +212,7 @@ export type UpdateTask = Partial<NewTask>;
 export type UpdateContact = Partial<NewContact>;
 export type UpdateReport = Partial<NewReport>;
 export type UpdatePostAuction = Partial<NewPostAuction>;
+export type UpdateUserProfile = Partial<Omit<UserProfile, "user_id" | "created_at" | "updated_at">>;
 
 export interface DashboardMetrics {
   total_properties: number;
@@ -285,6 +297,11 @@ export interface Database {
         Insert: Partial<NewPostAuction>;
         Update: UpdatePostAuction;
       };
+      user_profiles: {
+        Row: UserProfile;
+        Insert: Partial<NewUserProfile>;
+        Update: UpdateUserProfile;
+      };
     };
     Enums: {
       property_status: PropertyStatus;
@@ -292,6 +309,7 @@ export interface Database {
       bid_status: BidStatus;
       task_priority: TaskPriority;
       document_type: DocumentType;
+      app_role: AppRole;
     };
   };
 }
