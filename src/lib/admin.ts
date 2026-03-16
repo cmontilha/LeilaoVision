@@ -4,6 +4,9 @@ export interface AdminUserRow {
   user_id: string;
   email: string | null;
   role: AppRole;
+  is_active: boolean;
+  deactivated_at: string | null;
+  deactivated_reason: string | null;
   created_at: string;
   email_confirmed_at: string | null;
   last_sign_in_at: string | null;
@@ -111,6 +114,7 @@ export async function updateAdminUserRole(targetUserId: string, role: AppRole): 
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      action: "role",
       target_user_id: targetUserId,
       role,
     }),
@@ -119,6 +123,28 @@ export async function updateAdminUserRole(targetUserId: string, role: AppRole): 
   const payload = await parseJsonSafe<AdminPatchResponse>(response);
   if (!response.ok) {
     throw new Error(payload?.error ?? "Falha ao atualizar role do usuário.");
+  }
+}
+
+export async function updateAdminUserActive(
+  targetUserId: string,
+  isActive: boolean,
+  reason?: string | null,
+): Promise<void> {
+  const response = await fetch("/api/admin/users", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "active",
+      target_user_id: targetUserId,
+      is_active: isActive,
+      reason: reason ?? null,
+    }),
+  });
+
+  const payload = await parseJsonSafe<AdminPatchResponse>(response);
+  if (!response.ok) {
+    throw new Error(payload?.error ?? "Falha ao atualizar status do usuário.");
   }
 }
 

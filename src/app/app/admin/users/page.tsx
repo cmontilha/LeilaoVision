@@ -12,6 +12,7 @@ import {
   roleBadgeClass,
   safeAdminErrorMessage,
   sortAdminUsers,
+  updateAdminUserActive,
   updateAdminUserRole,
   type AdminMetrics,
   type AdminUserRow,
@@ -59,6 +60,22 @@ export default function AdminUsersPage() {
     try {
       await updateAdminUserRole(targetUserId, nextRole);
       setActionMessage("Role atualizada com sucesso.");
+      await refresh();
+    } catch (updateError) {
+      setActionError(safeAdminErrorMessage(updateError));
+    } finally {
+      setUpdatingUserId(null);
+    }
+  }
+
+  async function handleActiveToggle(targetUserId: string, nextIsActive: boolean) {
+    setUpdatingUserId(targetUserId);
+    setActionError("");
+    setActionMessage("");
+
+    try {
+      await updateAdminUserActive(targetUserId, nextIsActive, nextIsActive ? null : "Inativado pelo admin.");
+      setActionMessage(nextIsActive ? "Usuário reativado com sucesso." : "Usuário inativado com sucesso.");
       await refresh();
     } catch (updateError) {
       setActionError(safeAdminErrorMessage(updateError));
@@ -147,6 +164,7 @@ export default function AdminUsersPage() {
                 <tr>
                   <th className="px-2 py-3">E-mail</th>
                   <th className="px-2 py-3">Role</th>
+                  <th className="px-2 py-3">Status</th>
                   <th className="px-2 py-3">Criado em</th>
                   <th className="px-2 py-3">Confirmado em</th>
                   <th className="px-2 py-3">Último login</th>
@@ -158,6 +176,8 @@ export default function AdminUsersPage() {
                   const isSelf = user.user_id === currentUserId;
                   const nextRole: AppRole = user.role === "admin" ? "user" : "admin";
                   const actionLabel = user.role === "admin" ? "Remover admin" : "Promover admin";
+                  const nextIsActive = !user.is_active;
+                  const activeActionLabel = user.is_active ? "Inativar" : "Reativar";
 
                   return (
                     <tr key={user.user_id}>
@@ -167,19 +187,41 @@ export default function AdminUsersPage() {
                           {user.role}
                         </span>
                       </td>
+                      <td className="px-2 py-3">
+                        <span
+                          className={`inline-flex rounded-full border px-2 py-1 text-xs ${
+                            user.is_active
+                              ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-200"
+                              : "border-red-500/35 bg-red-500/10 text-red-200"
+                          }`}
+                        >
+                          {user.is_active ? "ativo" : "inativo"}
+                        </span>
+                      </td>
                       <td className="px-2 py-3 text-lv-textMuted">{formatDateTime(user.created_at)}</td>
                       <td className="px-2 py-3 text-lv-textMuted">{formatDateTime(user.email_confirmed_at)}</td>
                       <td className="px-2 py-3 text-lv-textMuted">{formatDateTime(user.last_sign_in_at)}</td>
                       <td className="px-2 py-3">
-                        <button
-                          type="button"
-                          disabled={isSelf || updatingUserId === user.user_id}
-                          onClick={() => void handleRoleChange(user.user_id, nextRole)}
-                          className="rounded-lg border border-lv-border bg-lv-panelMuted px-3 py-1.5 text-xs text-lv-textMuted transition hover:border-white/30 hover:text-lv-text disabled:cursor-not-allowed disabled:opacity-55"
-                          title={isSelf ? "Você não pode alterar sua própria role." : actionLabel}
-                        >
-                          {updatingUserId === user.user_id ? "Atualizando..." : actionLabel}
-                        </button>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={isSelf || updatingUserId === user.user_id}
+                            onClick={() => void handleRoleChange(user.user_id, nextRole)}
+                            className="rounded-lg border border-lv-border bg-lv-panelMuted px-3 py-1.5 text-xs text-lv-textMuted transition hover:border-white/30 hover:text-lv-text disabled:cursor-not-allowed disabled:opacity-55"
+                            title={isSelf ? "Você não pode alterar sua própria role." : actionLabel}
+                          >
+                            {updatingUserId === user.user_id ? "Atualizando..." : actionLabel}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isSelf || updatingUserId === user.user_id}
+                            onClick={() => void handleActiveToggle(user.user_id, nextIsActive)}
+                            className="rounded-lg border border-lv-border bg-lv-panelMuted px-3 py-1.5 text-xs text-lv-textMuted transition hover:border-white/30 hover:text-lv-text disabled:cursor-not-allowed disabled:opacity-55"
+                            title={isSelf ? "Você não pode inativar sua própria conta." : activeActionLabel}
+                          >
+                            {updatingUserId === user.user_id ? "Atualizando..." : activeActionLabel}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

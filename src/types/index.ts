@@ -188,6 +188,13 @@ export interface PostAuction {
 export interface UserProfile {
   user_id: UUID;
   role: AppRole;
+  email: string | null;
+  is_active: boolean;
+  deactivated_at: ISODateString | null;
+  deactivated_reason: string | null;
+  auth_created_at: ISODateString | null;
+  email_confirmed_at: ISODateString | null;
+  last_sign_in_at: ISODateString | null;
   created_at: ISODateString;
   updated_at: ISODateString;
 }
