@@ -13,9 +13,16 @@ interface AuthFormProps {
 }
 
 function mapError(error: string): string {
-  if (error.includes("invalid_credentials")) return "E-mail ou senha inválidos.";
-  if (error.includes("confirm")) return "Não foi possível confirmar o e-mail.";
-  if (error.includes("Password should be at least")) return "A senha deve ter pelo menos 6 caracteres.";
+  const normalized = error.toLowerCase();
+
+  if (normalized.includes("invalid_credentials")) return "E-mail ou senha inválidos.";
+  if (normalized.includes("confirm")) return "Não foi possível confirmar o e-mail.";
+  if (normalized.includes("password should be at least")) return "A senha deve ter pelo menos 6 caracteres.";
+  if (normalized.includes("email address") && normalized.includes("invalid")) return "Informe um e-mail válido.";
+  if (normalized.includes("email rate limit exceeded")) {
+    return "Limite de envio de e-mails atingido. Aguarde alguns minutos e tente novamente.";
+  }
+  if (normalized.includes("user already registered")) return "Este e-mail já está cadastrado.";
   return error;
 }
 
@@ -28,6 +35,32 @@ function getFirstName(name: string): string {
   return normalized.split(/\s+/)[0] ?? "Investidor";
 }
 
+function getEmailRedirectUrl(): string {
+  const configuredUrl = process.env.NEXT_PUBLIC_AUTH_REDIRECT_URL?.trim();
+  if (configuredUrl) {
+    return configuredUrl;
+  }
+
+  return `${window.location.origin}/auth/confirm?next=/app/dashboard`;
+}
+
+function getPasswordRecoveryRedirectUrl(): string {
+  const configuredUrl = process.env.NEXT_PUBLIC_PASSWORD_RECOVERY_REDIRECT_URL?.trim();
+  if (configuredUrl) {
+    return configuredUrl;
+  }
+
+  return `${window.location.origin}/auth/confirm?next=/reset-password`;
+}
+
+function shouldRetryWithoutRedirect(errorMessage: string): boolean {
+  const normalized = errorMessage.toLowerCase();
+  return (
+    normalized.includes("redirect") &&
+    (normalized.includes("url") || normalized.includes("uri") || normalized.includes("allow"))
+  );
+}
+
 export function AuthForm({ mode, initialError }: AuthFormProps) {
   const router = useRouter();
 
@@ -37,6 +70,7 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
   const [error, setError] = useState(initialError ? mapError(initialError) : "");
   const [success, setSuccess] = useState("");
 
@@ -46,7 +80,7 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
     : "Acesse sua plataforma de análise de leilões imobiliários.";
 
   async function persistSession(accessToken: string, refreshToken: string) {
-    await fetch("/api/auth/set-session", {
+    const response = await fetch("/api/auth/set-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -54,6 +88,45 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
         refresh_token: refreshToken,
       }),
     });
+
+    if (!response.ok) {
+      throw new Error("Não foi possível salvar a sessão de acesso.");
+    }
+  }
+
+  async function onForgotPassword() {
+    if (isSignup) {
+      return;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setError("Informe seu e-mail para receber o link de redefinição.");
+      setSuccess("");
+      return;
+    }
+
+    setForgotPasswordLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const { error: resetError } = await getSupabaseBrowserClient().auth.resetPasswordForEmail(
+        normalizedEmail,
+        {
+          redirectTo: getPasswordRecoveryRedirectUrl(),
+        },
+      );
+
+      if (resetError) {
+        setError(resetError.message);
+        return;
+      }
+
+      setSuccess("Enviamos um e-mail com o link para redefinir sua senha.");
+    } finally {
+      setForgotPasswordLoading(false);
+    }
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -63,67 +136,87 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
     setSuccess("");
 
     const supabase = getSupabaseBrowserClient();
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedName = name.trim();
 
-    if (!isSignup) {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      if (!normalizedEmail) {
+        setError("Informe um e-mail válido.");
+        return;
+      }
 
-      if (signInError) {
-        setError(signInError.message);
-        setLoading(false);
+      if (!isSignup) {
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        });
+
+        if (signInError) {
+          setError(signInError.message);
+          return;
+        }
+
+        if (data.session) {
+          await persistSession(data.session.access_token, data.session.refresh_token);
+        }
+
+        router.push("/app/dashboard");
+        router.refresh();
+        return;
+      }
+
+      if (!normalizedName) {
+        setError("Informe seu nome para continuar.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError("As senhas não conferem.");
+        return;
+      }
+
+      const signUpPayload = {
+        email: normalizedEmail,
+        password,
+        options: {
+          data: {
+            name: normalizedName,
+            full_name: normalizedName,
+            first_name: getFirstName(normalizedName),
+          },
+        },
+      };
+
+      let { data, error: signUpError } = await supabase.auth.signUp({
+        ...signUpPayload,
+        options: {
+          ...signUpPayload.options,
+          emailRedirectTo: getEmailRedirectUrl(),
+        },
+      });
+
+      if (signUpError && shouldRetryWithoutRedirect(signUpError.message)) {
+        const retry = await supabase.auth.signUp(signUpPayload);
+        data = retry.data;
+        signUpError = retry.error;
+      }
+
+      if (signUpError) {
+        setError(signUpError.message);
         return;
       }
 
       if (data.session) {
         await persistSession(data.session.access_token, data.session.refresh_token);
+        router.push("/app/dashboard");
+        router.refresh();
+        return;
       }
 
-      router.push("/app/dashboard");
-      router.refresh();
-      return;
-    }
-
-    if (!name.trim()) {
-      setError("Informe seu nome para continuar.");
+      setSuccess("Cadastro recebido. Confira seu e-mail para confirmar o acesso.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    if (password !== confirmPassword) {
-      setError("As senhas não conferem.");
-      setLoading(false);
-      return;
-    }
-
-    const redirectUrl = `${window.location.origin}/auth/confirm?next=/app/dashboard`;
-
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          name: name.trim(),
-          full_name: name.trim(),
-          first_name: getFirstName(name),
-        },
-      },
-    });
-
-    if (signUpError) {
-      setError(signUpError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (data.session) {
-      await persistSession(data.session.access_token, data.session.refresh_token);
-      router.push("/app/dashboard");
-      router.refresh();
-      return;
-    }
-
-    setSuccess("Conta criada. Confira seu e-mail para confirmar o acesso.");
-    setLoading(false);
   }
 
   return (
@@ -186,6 +279,18 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
               onChange={(event) => setPassword(event.target.value)}
               required
             />
+            {!isSignup ? (
+              <div className="mt-2 text-right">
+                <button
+                  type="button"
+                  onClick={() => void onForgotPassword()}
+                  disabled={forgotPasswordLoading || loading}
+                  className="text-xs font-medium text-[#FFC107] transition hover:text-[#FFB300] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {forgotPasswordLoading ? "Enviando..." : "Esqueci minha senha"}
+                </button>
+              </div>
+            ) : null}
           </div>
 
           {isSignup ? (

@@ -22,6 +22,7 @@ import {
   ensureOptionalUrl,
   ensureOptionalUuid,
   ensureRequiredString,
+  ensureUuid,
   ValidationError,
 } from "./validation";
 
@@ -210,8 +211,8 @@ export function parseAnalysisUpdate(payload: Record<string, unknown>) {
 
 export function parseBidCreate(payload: Record<string, unknown>) {
   return {
-    property_id: ensureOptionalUuid(payload.property_id, "property_id"),
-    auction_id: ensureOptionalUuid(payload.auction_id, "auction_id"),
+    property_id: ensureUuid(payload.property_id, "property_id"),
+    auction_id: ensureUuid(payload.auction_id, "auction_id"),
     max_bid: ensureNumber(payload.max_bid, "max_bid"),
     placed_bid: ensureOptionalNumber(payload.placed_bid, "placed_bid"),
     status: hasKey(payload, "status") ? ensureEnum(payload.status, BID_STATUS, "status") : "planned",
@@ -235,11 +236,10 @@ export function parseBidUpdate(payload: Record<string, unknown>) {
 
 export function parseDocumentCreate(payload: Record<string, unknown>) {
   return {
-    property_id: ensureOptionalUuid(payload.property_id, "property_id"),
+    property_id: ensureUuid(payload.property_id, "property_id"),
     type: ensureEnum(payload.type, DOCUMENT_TYPE, "type"),
     file_name: ensureRequiredString(payload.file_name, "file_name"),
     storage_path: ensureRequiredString(payload.storage_path, "storage_path", 600),
-    file_url: ensureOptionalUrl(payload.file_url, "file_url"),
   };
 }
 
@@ -253,7 +253,6 @@ export function parseDocumentUpdate(payload: Record<string, unknown>) {
     next.file_name = ensureRequiredString(payload.file_name, "file_name");
   if (hasKey(payload, "storage_path"))
     next.storage_path = ensureRequiredString(payload.storage_path, "storage_path", 600);
-  if (hasKey(payload, "file_url")) next.file_url = ensureOptionalUrl(payload.file_url, "file_url");
 
   return next;
 }
@@ -346,7 +345,7 @@ export function parseReportUpdate(payload: Record<string, unknown>) {
 
 export function parsePostAuctionCreate(payload: Record<string, unknown>) {
   return {
-    property_id: ensureOptionalUuid(payload.property_id, "property_id"),
+    property_id: ensureUuid(payload.property_id, "property_id"),
     bid_id: ensureOptionalUuid(payload.bid_id, "bid_id"),
     status: hasKey(payload, "status")
       ? ensureEnum(payload.status, POST_AUCTION_STATUS, "status")

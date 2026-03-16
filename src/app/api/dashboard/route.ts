@@ -1,6 +1,9 @@
+import { NextRequest } from "next/server";
+
 import { addDays, formatMonthLabel, isFutureDate, isPastDate } from "@/lib/date";
 import { requireApiUser } from "@/lib/api/auth";
 import { fail, ok } from "@/lib/api/response";
+import { buildRateLimitKey, consumeRateLimit } from "@/lib/api/security";
 import type { Auction, Bid, DashboardData, DashboardPoint, Property, PropertyAnalysis, Task } from "@/types";
 
 function groupByMonth<T extends { created_at: string }>(rows: T[], valueResolver: (row: T) => number) {
@@ -37,10 +40,15 @@ function sortByDateAscending<T>(rows: T[], getter: (row: T) => string) {
   return [...rows].sort((a, b) => new Date(getter(a)).getTime() - new Date(getter(b)).getTime());
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const auth = await requireApiUser();
   if (auth.errorResponse) {
     return auth.errorResponse;
+  }
+
+  const rate = consumeRateLimit(buildRateLimitKey(request, "dashboard", auth.user.id), 90, 60_000);
+  if (!rate.allowed) {
+    return fail(`Muitas requisições. Aguarde ${rate.retryAfterSeconds}s.`, 429);
   }
 
   try {

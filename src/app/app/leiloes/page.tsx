@@ -243,7 +243,7 @@ export default function AuctionsPage() {
                         <a
                           href={auction.notice_url}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           className="rounded-lg border border-lv-border bg-lv-panelMuted p-2 text-lv-textMuted"
                           title="Visualizar edital"
                         >

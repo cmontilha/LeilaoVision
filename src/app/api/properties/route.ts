@@ -1,12 +1,20 @@
 import { NextRequest } from "next/server";
 
 import { createCrudHandlers } from "@/lib/api/crud";
+import { validateOwnedReferences } from "@/lib/api/ownership";
 import { parsePropertyCreate, parsePropertyUpdate } from "@/lib/api/parsers";
 
 const handlers = createCrudHandlers({
   table: "properties",
   parseCreate: parsePropertyCreate,
   parseUpdate: parsePropertyUpdate,
+  validateWrite: async ({ payload, userId, supabase }) =>
+    validateOwnedReferences({
+      payload,
+      userId,
+      supabase: supabase as Parameters<typeof validateOwnedReferences>[0]["supabase"],
+      rules: [{ field: "auction_id", table: "auctions" }],
+    }),
   applyListFilters(query, request: NextRequest) {
     const search = request.nextUrl.searchParams.get("search");
     const city = request.nextUrl.searchParams.get("city");

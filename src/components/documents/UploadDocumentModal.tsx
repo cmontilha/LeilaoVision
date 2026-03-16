@@ -14,6 +14,9 @@ interface UploadDocumentModalProps {
   onUploaded: () => Promise<void> | void;
 }
 
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const ALLOWED_MIME_TYPES = new Set(["application/pdf", "image/png", "image/jpeg", "image/webp"]);
+
 const documentLabel: Record<DocumentType, string> = {
   edital: "Edital",
   matricula: "Matrícula",
@@ -21,6 +24,12 @@ const documentLabel: Record<DocumentType, string> = {
   fotos: "Fotos",
   relatorio: "Relatório",
 };
+
+function sanitizeFileName(value: string): string {
+  const normalized = value.normalize("NFKD").replace(/[^\w.-]+/g, "_");
+  const compact = normalized.replace(/_+/g, "_").slice(0, 140);
+  return compact || "arquivo";
+}
 
 export function UploadDocumentModal({
   open,
@@ -45,6 +54,16 @@ export function UploadDocumentModal({
       return;
     }
 
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setError("Arquivo excede o limite de 10 MB.");
+      return;
+    }
+
+    if (!ALLOWED_MIME_TYPES.has(file.type)) {
+      setError("Tipo de arquivo não permitido. Envie PDF, PNG, JPEG ou WEBP.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -58,7 +77,8 @@ export function UploadDocumentModal({
         throw new Error("Sessão expirada.");
       }
 
-      const filePath = `${user.id}/${propertyId}/${type}/${Date.now()}-${file.name}`;
+      const safeFileName = sanitizeFileName(file.name);
+      const filePath = `${user.id}/${propertyId}/${type}/${Date.now()}-${safeFileName}`;
       const { error: uploadError } = await supabase.storage
         .from(DOCUMENT_BUCKET)
         .upload(filePath, file, {
@@ -70,10 +90,6 @@ export function UploadDocumentModal({
         throw new Error(uploadError.message);
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from(DOCUMENT_BUCKET).getPublicUrl(filePath);
-
       const response = await fetch("/api/documents", {
         method: "POST",
         headers: {
@@ -82,9 +98,8 @@ export function UploadDocumentModal({
         body: JSON.stringify({
           property_id: propertyId,
           type,
-          file_name: file.name,
+          file_name: safeFileName,
           storage_path: filePath,
-          file_url: publicUrl,
         }),
       });
 
@@ -99,7 +114,7 @@ export function UploadDocumentModal({
       setFile(null);
       onClose();
     } catch (submitError) {
-      setError(String(submitError));
+      setError(submitError instanceof Error ? submitError.message : "Falha ao enviar documento.");
     } finally {
       setLoading(false);
     }
@@ -156,7 +171,7 @@ export function UploadDocumentModal({
             Arquivo (PDF ou imagem)
             <input
               type="file"
-              accept="application/pdf,image/*"
+              accept="application/pdf,image/png,image/jpeg,image/webp"
               className="w-full rounded-xl border border-lv-border bg-lv-panelMuted px-3 py-2 text-sm text-lv-text"
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               required

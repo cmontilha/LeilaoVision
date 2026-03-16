@@ -1,9 +1,10 @@
 import { NextRequest } from "next/server";
 
 import { requireApiUser } from "@/lib/api/auth";
+import { buildRateLimitKey, consumeRateLimit, isSameOriginRequest } from "@/lib/api/security";
 
 import { fail, ok } from "./response";
-import { ValidationError, ensureObject } from "./validation";
+import { ValidationError, ensureObject, ensureUuid } from "./validation";
 
 type PayloadParser = (payload: Record<string, unknown>) => Record<string, unknown>;
 
@@ -16,6 +17,7 @@ interface QueryLike extends PromiseLike<QueryResult> {
   eq: (column: string, value: unknown) => QueryLike;
   ilike: (column: string, pattern: string) => QueryLike;
   order: (column: string, options: { ascending: boolean }) => QueryLike;
+  range: (from: number, to: number) => QueryLike;
 }
 
 interface SingleMutationResult {
@@ -57,6 +59,23 @@ interface CrudRouteOptions {
   parseCreate: PayloadParser;
   parseUpdate: PayloadParser;
   applyListFilters?: (query: QueryLike, request: NextRequest) => QueryLike;
+  validateWrite?: (params: {
+    payload: Record<string, unknown>;
+    userId: string;
+    supabase: unknown;
+    request: NextRequest;
+    mode: "create" | "update";
+    id?: string;
+  }) => Promise<string | null> | string | null;
+  rateLimits?: Partial<
+    Record<
+      "GET" | "POST" | "PATCH" | "DELETE",
+      {
+        limit: number;
+        windowMs: number;
+      }
+    >
+  >;
 }
 
 export function createCrudHandlers({
@@ -65,11 +84,62 @@ export function createCrudHandlers({
   parseCreate,
   parseUpdate,
   applyListFilters,
+  validateWrite,
+  rateLimits,
 }: CrudRouteOptions) {
+  function resolveRateLimit(method: "GET" | "POST" | "PATCH" | "DELETE") {
+    if (method === "GET") {
+      return {
+        limit: rateLimits?.GET?.limit ?? 180,
+        windowMs: rateLimits?.GET?.windowMs ?? 60_000,
+      };
+    }
+
+    if (method === "PATCH") {
+      return {
+        limit: rateLimits?.PATCH?.limit ?? 90,
+        windowMs: rateLimits?.PATCH?.windowMs ?? 60_000,
+      };
+    }
+
+    if (method === "DELETE") {
+      return {
+        limit: rateLimits?.DELETE?.limit ?? 45,
+        windowMs: rateLimits?.DELETE?.windowMs ?? 60_000,
+      };
+    }
+
+    return {
+      limit: rateLimits?.POST?.limit ?? 60,
+      windowMs: rateLimits?.POST?.windowMs ?? 60_000,
+    };
+  }
+
+  function enforceRateLimit(request: NextRequest, userId: string, method: "GET" | "POST" | "PATCH" | "DELETE") {
+    const methodLimit = resolveRateLimit(method);
+    const key = buildRateLimitKey(request, `crud:${table}:${method}`, userId);
+    return consumeRateLimit(key, methodLimit.limit, methodLimit.windowMs);
+  }
+
   async function GET(request: NextRequest) {
     const auth = await requireApiUser();
     if (auth.errorResponse) {
       return auth.errorResponse;
+    }
+
+    const rate = enforceRateLimit(request, auth.user.id, "GET");
+    if (!rate.allowed) {
+      return fail(`Muitas requisições. Aguarde ${rate.retryAfterSeconds}s.`, 429);
+    }
+
+    const rawLimit = request.nextUrl.searchParams.get("limit");
+    let limit = 200;
+    if (rawLimit !== null) {
+      const parsedLimit = Number(rawLimit);
+      if (!Number.isInteger(parsedLimit) || parsedLimit < 1 || parsedLimit > 200) {
+        return fail("Parâmetro limit inválido. Use um valor entre 1 e 200.", 422);
+      }
+      limit = parsedLimit;
     }
 
     try {
@@ -80,7 +150,7 @@ export function createCrudHandlers({
         query = applyListFilters(query, request);
       }
 
-      const { data, error } = await query.order(orderBy, { ascending: false });
+      const { data, error } = await query.order(orderBy, { ascending: false }).range(0, limit - 1);
 
       if (error) {
         return fail("Erro ao buscar registros.", 500, error.message);
@@ -93,9 +163,18 @@ export function createCrudHandlers({
   }
 
   async function POST(request: NextRequest) {
+    if (!isSameOriginRequest(request)) {
+      return fail("Origem da requisição não permitida.", 403);
+    }
+
     const auth = await requireApiUser();
     if (auth.errorResponse) {
       return auth.errorResponse;
+    }
+
+    const rate = enforceRateLimit(request, auth.user.id, "POST");
+    if (!rate.allowed) {
+      return fail(`Muitas requisições. Aguarde ${rate.retryAfterSeconds}s.`, 429);
     }
 
     try {
@@ -106,6 +185,20 @@ export function createCrudHandlers({
         ...parsed,
         user_id: auth.user.id,
       };
+
+      if (validateWrite) {
+        const validationError = await validateWrite({
+          payload,
+          userId: auth.user.id,
+          supabase: auth.supabase,
+          request,
+          mode: "create",
+        });
+
+        if (validationError) {
+          return fail(validationError, 422);
+        }
+      }
 
       const { data, error } = await tableClient.insert(payload).select("*").single();
 
@@ -124,20 +217,58 @@ export function createCrudHandlers({
   }
 
   async function PATCH(request: NextRequest) {
+    if (!isSameOriginRequest(request)) {
+      return fail("Origem da requisição não permitida.", 403);
+    }
+
     const auth = await requireApiUser();
     if (auth.errorResponse) {
       return auth.errorResponse;
     }
 
-    const id = request.nextUrl.searchParams.get("id");
-    if (!id) {
+    const rawId = request.nextUrl.searchParams.get("id");
+    if (!rawId) {
       return fail("Parâmetro id é obrigatório.", 422);
+    }
+
+    const rate = enforceRateLimit(request, auth.user.id, "PATCH");
+    if (!rate.allowed) {
+      return fail(`Muitas requisições. Aguarde ${rate.retryAfterSeconds}s.`, 429);
+    }
+
+    let id: string;
+    try {
+      id = ensureUuid(rawId, "id");
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        return fail(error.message, 422);
+      }
+      return fail("Parâmetro id inválido.", 422);
     }
 
     try {
       const tableClient = auth.supabase.from(table) as unknown as DynamicTableClient;
       const body = ensureObject(await request.json());
       const parsed = parseUpdate(body);
+
+      if (Object.keys(parsed).length === 0) {
+        return fail("Nenhum campo válido para atualização.", 422);
+      }
+
+      if (validateWrite) {
+        const validationError = await validateWrite({
+          payload: parsed,
+          userId: auth.user.id,
+          supabase: auth.supabase,
+          request,
+          mode: "update",
+          id,
+        });
+
+        if (validationError) {
+          return fail(validationError, 422);
+        }
+      }
 
       const { data, error } = await tableClient
         .update(parsed)
@@ -161,14 +292,33 @@ export function createCrudHandlers({
   }
 
   async function DELETE(request: NextRequest) {
+    if (!isSameOriginRequest(request)) {
+      return fail("Origem da requisição não permitida.", 403);
+    }
+
     const auth = await requireApiUser();
     if (auth.errorResponse) {
       return auth.errorResponse;
     }
 
-    const id = request.nextUrl.searchParams.get("id");
-    if (!id) {
+    const rawId = request.nextUrl.searchParams.get("id");
+    if (!rawId) {
       return fail("Parâmetro id é obrigatório.", 422);
+    }
+
+    const rate = enforceRateLimit(request, auth.user.id, "DELETE");
+    if (!rate.allowed) {
+      return fail(`Muitas requisições. Aguarde ${rate.retryAfterSeconds}s.`, 429);
+    }
+
+    let id: string;
+    try {
+      id = ensureUuid(rawId, "id");
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        return fail(error.message, 422);
+      }
+      return fail("Parâmetro id inválido.", 422);
     }
 
     try {

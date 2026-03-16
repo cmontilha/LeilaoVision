@@ -33,6 +33,8 @@ export default function DocumentsPage() {
   const [propertyFilter, setPropertyFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [activeFolder, setActiveFolder] = useState<DocumentType | null>(null);
+  const [openFileLoadingId, setOpenFileLoadingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState("");
 
   const propertyMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -77,6 +79,29 @@ export default function DocumentsPage() {
 
   const selectedFolder = (typeFilter || activeFolder || DOCUMENT_TYPE[0]) as DocumentType;
   const selectedDocuments = groupedByType.get(selectedFolder) ?? [];
+
+  async function openDocument(documentId: string) {
+    setActionError("");
+    setOpenFileLoadingId(documentId);
+
+    try {
+      const response = await fetch(`/api/documents/signed-url?id=${documentId}`, {
+        method: "GET",
+        cache: "no-store",
+      });
+      const payload = (await response.json()) as { data?: { url?: string }; error?: string };
+
+      if (!response.ok || !payload.data?.url) {
+        throw new Error(payload.error ?? "Falha ao abrir documento.");
+      }
+
+      window.open(payload.data.url, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Falha ao abrir documento.");
+    } finally {
+      setOpenFileLoadingId(null);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -213,6 +238,10 @@ export default function DocumentsPage() {
             <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
               {documents.error}
             </p>
+          ) : actionError ? (
+            <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+              {actionError}
+            </p>
           ) : selectedDocuments.length === 0 ? (
             <p className="text-sm text-lv-textMuted">Essa pasta ainda não possui arquivos.</p>
           ) : (
@@ -229,16 +258,18 @@ export default function DocumentsPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {document.file_url ? (
-                      <a
-                        href={document.file_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-lg border border-lv-border bg-[#141416] p-2 text-lv-textMuted"
-                      >
+                    <button
+                      type="button"
+                      onClick={() => void openDocument(document.id)}
+                      disabled={openFileLoadingId === document.id}
+                      className="rounded-lg border border-lv-border bg-[#141416] p-2 text-lv-textMuted disabled:opacity-60"
+                    >
+                      {openFileLoadingId === document.id ? (
+                        <span className="text-xs">...</span>
+                      ) : (
                         <ExternalLink size={14} />
-                      </a>
-                    ) : null}
+                      )}
+                    </button>
                     <button
                       type="button"
                       className="rounded-lg border border-red-500/35 bg-red-500/10 p-2 text-red-300"

@@ -461,7 +461,7 @@ export default function PropertiesPage() {
                         <a
                           href={property.source_url}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           className="text-[#FFC107] hover:text-[#FFB300] hover:underline"
                         >
                           Abrir
